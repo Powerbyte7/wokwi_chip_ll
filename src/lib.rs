@@ -23,13 +23,13 @@ pub struct WatchConfig {
     /// What pin changes we listen for ([`RISING`], [`FALLING`] or [`BOTH`])
     pub edge: u32,
     /// Called when the pin value changes
-    pub pin_change: *const c_void,
+    pub pin_change: extern "C" fn(user_data: *mut c_void, pin: PinId, value: u32),
 }
 
 #[repr(C)]
 pub struct TimerConfig {
     pub user_data: *const c_void,
-    pub callback: *const c_void,
+    pub callback: extern "C" fn(user_data: *mut c_void),
 }
 
 #[repr(C)]
@@ -38,8 +38,8 @@ pub struct UARTConfig {
     pub rx: PinId,
     pub tx: PinId,
     pub baud_rate: u32,
-    pub rx_data: *const c_void,
-    pub write_done: *const c_void,
+    pub rx_data: extern "C" fn(user_data: *mut c_void, byte: u8),
+    pub write_done: extern "C" fn(user_data: *mut c_void),
 }
 
 #[repr(C)]
@@ -48,10 +48,10 @@ pub struct I2CConfig {
     pub address: u32,
     pub scl: PinId,
     pub sda: PinId,
-    pub connect: *const c_void,
-    pub read: *const c_void,
-    pub write: *const c_void,
-    pub disconnect: *const c_void,
+    pub connect: extern "C" fn(user_data: *mut c_void, address: u32, connect: bool) -> bool,
+    pub read: extern "C" fn(user_data: *mut c_void) -> u8,
+    pub write: extern "C" fn(user_data: *mut c_void, data: u8) -> bool,
+    pub disconnect: extern "C" fn(user_data: *mut c_void),
 }
 
 #[repr(C)]
@@ -61,7 +61,7 @@ pub struct SPIConfig {
     pub mosi: PinId,
     pub miso: PinId,
     pub mode: u32,
-    pub done: *const c_void,
+    pub done: extern "C" fn(user_data: *mut c_void, buffer: *mut u8, count: u32),
 }
 
 /// # Safety
